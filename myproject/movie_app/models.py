@@ -59,8 +59,8 @@ class Genre(models.Model):
 class Movie(models.Model):
     movie_name = models.CharField(max_length=64)
     year = models.DateField()
-    country = models.ManyToManyField(Country)
-    director = models.ManyToManyField(Director)
+    country = models.ManyToManyField(Country, related_name='country_movie')
+    director = models.ManyToManyField(Director, related_name='director_movie')
     actor = models.ManyToManyField(Actor)
     genre = models.ManyToManyField(Genre)
     TYPE_CHOICES = (
@@ -76,6 +76,16 @@ class Movie(models.Model):
     movie_trailer = models.URLField()
     movie_image = models.ImageField(upload_to='movie_images/')
     status_movie = models.CharField(choices=STATUS_CHOICES)
+
+    def get_avg_rating(self):
+        ratings = self.movie_ratings.all()
+        if ratings.exists():
+            return round(sum([i.stars for i in ratings]) / ratings.count(), 2)
+        return 0
+
+
+    def get_count_people(self):
+        return self.movie_ratings.count()
 
 
     def __str__(self):
